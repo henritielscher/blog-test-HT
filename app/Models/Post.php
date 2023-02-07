@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Notifications\PostCreated;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Notification;
 
 class Post extends Model
 {
@@ -27,12 +29,29 @@ class Post extends Model
             }
         );
 
+        static::updating(function ($post) {
+            if (is_null($post->user_id)) {
+                $post->user_id = auth()->user()->id;
+            }
+        });
+
         static::deleting(
             function ($post) {
                 $post->comments()->delete();
                 $post->tags()->detach();
             }
         );
+
+        static::created(function (Post $post) {
+            /** @var User|null */
+            $admin = User::all()->where("is_admin", "=", 1)->first();
+
+            if (!$admin) {
+                return;
+            }
+
+            Notification::send($admin, new PostCreated($post));
+        });
     }
 
     public function category()

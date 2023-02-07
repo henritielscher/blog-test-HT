@@ -7,6 +7,7 @@ use App\Http\Requests\PostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use App\User;
 
 class PostController extends Controller
 {
@@ -21,8 +22,9 @@ class PostController extends Controller
     {
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $users = User::all()->pluck("name", "id");
 
-        return view('admin.posts.create', compact('categories', 'tags'));
+        return view('admin.posts.create', compact('categories', 'tags', "users"));
     }
 
     public function store(PostRequest $request)
@@ -32,6 +34,7 @@ class PostController extends Controller
                 'title'       => $request->title,
                 'body'        => $request->body,
                 'category_id' => $request->category_id,
+                "user_id"     => $request->user_id
             ]
         );
 
@@ -64,8 +67,9 @@ class PostController extends Controller
 
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $users = User::all()->pluck("name", "id");
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', "users"));
     }
 
     public function update(PostRequest $request, Post $post)
@@ -75,6 +79,7 @@ class PostController extends Controller
                 'title'       => $request->title,
                 'body'        => $request->body,
                 'category_id' => $request->category_id,
+                "user_id"     => $request->user_id
             ]
         );
 
